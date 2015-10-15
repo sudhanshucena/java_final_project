@@ -69,7 +69,9 @@ public class DOMParser extends Parser{
 		//		System.out.println(element.getAttribute("Id"));
 		//		node = nList.item(2);
 		//		System.out.println(node.getNodeType());
-		
+		if( this.xmlFile.toString() != "users.xml")
+			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
+		else{
 		for (int index = 0 ; index < nList.getLength();index++){
 			node = nList.item(index);
 			if(node.getNodeType()==Node.ELEMENT_NODE){
@@ -84,17 +86,22 @@ public class DOMParser extends Parser{
 		}
 		System.out.println(userMap.size());
 //		System.out.println(userMap.keySet());
+		}
 	}	
 	
 	@Override
-	public void generatePostsMap(){
+	public void generatePostsMap(){	
 		
+		if( this.xmlFile.toString() != "posts.xml")
+			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
+		else{
 		System.out.println(nList.getLength());
 		for (int index = 0 ; index < nList.getLength();index++){
 			node = nList.item(index);
 			if(node.getNodeType()==Node.ELEMENT_NODE){
 			element = (Element)node;
 			posts.setId(Integer.parseInt(element.getAttribute("Id")));
+			posts.setPostTypeId(Integer.parseInt(element.getAttribute("PostTypeId")));
 //			posts.setAcceptedAnswerId(Integer.parseInt(element.getAttribute("AcceptedAnswerId")));
 			if(element.getAttribute("OwnerUserId")=="")
 			{
@@ -104,10 +111,11 @@ public class DOMParser extends Parser{
 			else
 				posts.setOwnerUserId(Integer.parseInt(element.getAttribute("OwnerUserId")));
 			postsMap.put(Integer.parseInt(element.getAttribute("Id")), posts);
+				}
+			}
+		System.out.println(postsMap.size());
 		}
 	}
-		System.out.println(postsMap.size());
-}
 	
 	
 	public Map<Integer, User> getUserMap() {
@@ -120,8 +128,13 @@ public class DOMParser extends Parser{
 
 	public static void main (String args[]){
 		DOMParser obj = new DOMParser("posts.xml");
+		DOMParser obj2 = new DOMParser("users.xml");
 		obj.parse();
 		obj.generatePostsMap();
+//		obj.generateUserMap();
+		obj2.parse();
+		obj2.generateUserMap();
+//		obj2.generatePostsMap();
 	}
 
 }	

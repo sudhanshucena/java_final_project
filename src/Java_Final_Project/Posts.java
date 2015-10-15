@@ -1,7 +1,13 @@
 package Java_Final_Project;
 
 public class Posts {
-	int id,ownerUserId;
+	int id,ownerUserId,postTypeId;
+	public int getPostTypeId() {
+		return postTypeId;
+	}
+	public void setPostTypeId(int postTypeId) {
+		this.postTypeId = postTypeId;
+	}
 	public int getId() {
 		return id;
 	}
