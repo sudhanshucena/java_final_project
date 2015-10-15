@@ -1,5 +1,7 @@
 package Java_Final_Project;
 
-public interface Parser {
-	 void parse();
+public abstract class Parser {
+	 abstract void parse();
+	 abstract void generateUserMap();
+	 abstract void generatePostsMap();
 }
