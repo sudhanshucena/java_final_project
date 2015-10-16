@@ -106,6 +106,11 @@ public class DOMParser extends Parser{
 			if(node.getNodeType()==Node.ELEMENT_NODE){
 			element = (Element)node;
 			postType = Integer.parseInt(element.getAttribute("PostTypeId"));
+			if(element.getAttribute("OwnerUserId")==""){
+				ownerId = -2;
+			}
+			else 
+				ownerId = Integer.parseInt(element.getAttribute("OwnerUserId"));
 			
 			//first map type
 			posts.setId(Integer.parseInt(element.getAttribute("Id")));
@@ -139,22 +144,23 @@ public class DOMParser extends Parser{
 			//push -2 for no questionId type of post
 			questionData.put(-2, 0);
 			answerData.put(-2, 0);
-			if (postType == 1){
-				//this post is a question
-				if(element.getAttribute("OwnerUserId")==""){
-					//the owner id does not exist
-					questionData.put(-2, questionData.get(-2)+1);
-				}
-				else{
-					//		if the data key exists in the map
-					if(questionData.get(Integer.parseInt(element.getAttribute("OwnerUserId")))!= null){
-						questionData.put(Integer.parseInt(element.getAttribute("OwnerUserId")),questionData.get(Integer.parseInt(element.getAttribute("OwnerUserId")))+1);
-					}
-					else{//the key doesn't exist in the map
-						questionData.put(Integer.parseInt(element.getAttribute("OwnerUserId")),0);
-					}
-				}
+			if(ownerId == 65527){
+				System.out.println("yes--	");
 			}
+			if (postType == 1){
+				if(ownerId == 65527){
+					System.out.println("yes");
+				}
+				//this post is a question
+				//if the data key exists in the map
+				if(questionData.containsKey(ownerId)){
+					questionData.put(ownerId,questionData.get(ownerId)+1);
+				}
+				else{//the key doesn't exist in the map
+					questionData.put(ownerId,1);
+					}
+			}
+			
 				}//for if(node.getNodeType()==Node.ELEMENT_NODE) 
 			}//outer for loop
 		System.out.println(postsMap.size());
@@ -164,6 +170,7 @@ public class DOMParser extends Parser{
 	        System.out.println(pair.getKey() + " = " + pair.getValue());
 	        it.remove(); // avoids a ConcurrentModificationException
 	    }
+//		System.out.println(questionData.get(-2));
 		}
 	}
 	
