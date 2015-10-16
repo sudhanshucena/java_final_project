@@ -10,11 +10,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class DOMParser extends Parser{
 	private File xmlFile;
@@ -22,23 +21,22 @@ public class DOMParser extends Parser{
 	private DocumentBuilder builder;
 	private Document document;
 	private User user;
-	private Posts posts;
 	private Map<Integer,User> userMap;
-	private Map<Integer, Posts> postsMap ;
 	private NodeList nList;
 	private Node node;
 	private Element element;
 	private Map<Integer,Integer> questionData;
 	private Map<Integer,Integer> answerData;
 	private int postType,ownerId;
-	//Parameterised Constructor
+	private Comparator<Integer> comparator;
+	PriorityQueue<Integer> queue;
+	
+	//Parameterized Constructor
 	DOMParser(String filename){
 			this.xmlFile =  new File (filename);
 			this.factory = DocumentBuilderFactory.newInstance();
 			user = new User();
-			posts = new Posts();
 			userMap = new HashMap<Integer,User>();
-			postsMap = new HashMap<Integer, Posts>();
 			questionData = new HashMap<Integer,Integer>();
 			answerData = new HashMap<Integer, Integer>();
 			try {
@@ -67,31 +65,18 @@ public class DOMParser extends Parser{
 	
 	@Override
 	public void generateUserMap(){
-		
-		//		Random testing code to see the xml traversal
-		//		Node nNode = nList.item(8);
-		//		System.out.println(nNode.getNodeName());
-		//		Element element = (Element) nNode;
-		//		System.out.println(element.getAttribute("Id"));
-		//		node = nList.item(2);
-		//		System.out.println(node.getNodeType());
 		if( this.xmlFile.toString() != "users.xml")
 			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
 		else{
 		for (int index = 0 ; index < nList.getLength();index++){
 			node = nList.item(index);
-			if(node.getNodeType()==Node.ELEMENT_NODE){
-				element = (Element)node;
-//				System.out.println("user id : " + element.getAttribute("Id") + " Reputation: "+ element.getAttribute("Reputation") + " User Name: " + element.getAttribute("DisplayName"));
-				user.setReputation(Integer.parseInt(element.getAttribute("Reputation")));
-//				System.out.println(user.getReputation());
-				user.setUserName(element.getAttribute("DisplayName"));
-//				user.setId(element.getAttribute("Id"));
-				userMap.put(Integer.parseInt(element.getAttribute("Id")),user);
-			}
+			element = (Element)node;
+//			System.out.println("user id : " + element.getAttribute("Id") + " Reputation: "+ element.getAttribute("Reputation") + " User Name: " + element.getAttribute("DisplayName"));
+			user.setReputation(Integer.parseInt(element.getAttribute("Reputation")));
+			user.setUserName(element.getAttribute("DisplayName"));
+			userMap.put(Integer.parseInt(element.getAttribute("Id")),user);
 		}
 		System.out.println(userMap.size());
-//		System.out.println(userMap.keySet());
 		}
 	}	
 	
@@ -101,93 +86,83 @@ public class DOMParser extends Parser{
 			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
 		else{
 		System.out.println(nList.getLength());
+		
+		//push -2 for no questionId type of post
+		questionData.put(-2, 0);
+		answerData.put(-2, 0);
 		for (int index = 0 ; index < nList.getLength();index++){
 			node = nList.item(index);
-			if(node.getNodeType()==Node.ELEMENT_NODE){
 			element = (Element)node;
 			postType = Integer.parseInt(element.getAttribute("PostTypeId"));
 			if(element.getAttribute("OwnerUserId")==""){
 				ownerId = -2;
+//				System.out.println(element.getAttribute("Id"));
 			}
 			else 
 				ownerId = Integer.parseInt(element.getAttribute("OwnerUserId"));
-			
-			//first map type
-			posts.setId(Integer.parseInt(element.getAttribute("Id")));
-			posts.setPostTypeId(Integer.parseInt(element.getAttribute("PostTypeId")));
-//			posts.setAcceptedAnswerId(Integer.parseInt(element.getAttribute("AcceptedAnswerId")));
-			if(element.getAttribute("OwnerUserId")=="")
-			{
-				//if no user owns the question set the ownerUserId = -2
-//				System.out.println(element.getAttribute("Id"));
-				posts.setOwnerUserId(-2);
-			}
-			else
-				posts.setOwnerUserId(Integer.parseInt(element.getAttribute("OwnerUserId")));
-			postsMap.put(Integer.parseInt(element.getAttribute("Id")), posts);
-			
-			//second map type
-			List<Integer> temp = new ArrayList<Integer>();
-//			temp.add(Integer.parseInt(element.getAttribute("Id")));
-			temp.add(Integer.parseInt(element.getAttribute("PostTypeId")));
-			if(element.getAttribute("OwnerUserId")=="")
-			{
-				//if no user owns the question set the ownerUserId = -2
-				temp.add(-2);
-			}
-			else
-				temp.add(Integer.parseInt(element.getAttribute("OwnerUserId")));
-//			System.out.println(temp.get(0)+" "+temp.get(1));
-			
-			
+
 			// 3rd map type
-			//push -2 for no questionId type of post
-			questionData.put(-2, 0);
-			answerData.put(-2, 0);
-			if(ownerId == 65527){
-				System.out.println("yes--	");
-			}
-			if (postType == 1){
-				if(ownerId == 65527){
-					System.out.println("yes");
-				}
-				//this post is a question
-				//if the data key exists in the map
+			if (postType == 1){ // this post is a question
 				if(questionData.containsKey(ownerId)){
 					questionData.put(ownerId,questionData.get(ownerId)+1);
 				}
 				else{//the key doesn't exist in the map
-					questionData.put(ownerId,1);
+					questionData.put(ownerId, 1);
 					}
 			}
-			
-				}//for if(node.getNodeType()==Node.ELEMENT_NODE) 
-			}//outer for loop
-		System.out.println(postsMap.size());
-		Iterator<?> it = questionData.entrySet().iterator();
-		while (it.hasNext()) {
-	        Map.Entry pair = (Map.Entry)it.next();
-	        System.out.println(pair.getKey() + " = " + pair.getValue());
-	        it.remove(); // avoids a ConcurrentModificationException
-	    }
-//		System.out.println(questionData.get(-2));
+			else{//this post is an answer
+				if(answerData.containsKey(ownerId)){
+					answerData.put(ownerId,answerData.get(ownerId)+1);
+				}
+				else{//the key doesn't exist in the map
+					answerData.put(ownerId,1);
+					}
+				}
+			}//main for loop every row in posts.xml
+		answerData.remove(-2);
+		questionData.remove(-2);
+		}//closing for else error handling
+	}//closing for generate postMap()
+	
+	
+	public void sortQuestionsMap(){
+		comparator = new MapValueComparator(questionData);
+		queue = new PriorityQueue<Integer>(27802, comparator);
+		Integer k;
+		System.out.println("In sort Question");
+		for (Integer key: questionData.keySet()){
+			queue.add(key);
 		}
-	}
+		System.out.println("queuesize = "+ queue.size());
+		while (queue.size() != 0)
+        {
+			k=queue.remove();
+            System.out.println(k+"="+questionData.get(k));
+        }
+
+		
+		}
+		
+	
+	
+	
 	
 	
 	public Map<Integer, User> getUserMap() {
 		return userMap;
 	}
 
-	public Map<Integer, Posts> getPostsMap() {
-		return postsMap;
+	public void setUserMap(Map<Integer, User> userMap) {
+		this.userMap = userMap;
 	}
 
+	// Main 
 	public static void main (String args[]){
 		DOMParser obj = new DOMParser("posts.xml");
 		DOMParser obj2 = new DOMParser("users.xml");
 		obj.parse();
 		obj.generatePostsMap();
+		obj.sortQuestionsMap();
 //		obj.generateUserMap();
 		obj2.parse();
 		obj2.generateUserMap();
