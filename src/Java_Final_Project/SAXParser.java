@@ -2,7 +2,7 @@ package Java_Final_Project;
 public class SAXParser extends Parser{
 
 	@Override
-	public void parse() {
+	public void parse(String fileName) {
 		// TODO Auto-generated method stub
 		
 	}

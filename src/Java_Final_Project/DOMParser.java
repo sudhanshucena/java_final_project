@@ -28,14 +28,10 @@ public class DOMParser extends Parser{
 	private Map<Integer,Integer> questionData;
 	private Map<Integer,Integer> answerData;
 	private int postType,ownerId;
-	private Comparator<Integer> comparator;
-	PriorityQueue<Integer> queue;
-	
+
 	//Parameterized Constructor
-	DOMParser(String filename){
-			this.xmlFile =  new File (filename);
+	DOMParser(){
 			this.factory = DocumentBuilderFactory.newInstance();
-			user = new User();
 			userMap = new HashMap<Integer,User>();
 			questionData = new HashMap<Integer,Integer>();
 			answerData = new HashMap<Integer, Integer>();
@@ -48,7 +44,8 @@ public class DOMParser extends Parser{
 	}
 	
 	@Override
-	public void parse() {
+	public void parse(String fileName) {
+		this.xmlFile =  new File (fileName);
 		try {
 			this.document = builder.parse(xmlFile);
 		} catch (SAXException e) {
@@ -65,10 +62,9 @@ public class DOMParser extends Parser{
 	
 	@Override
 	public void generateUserMap(){
-		if( this.xmlFile.toString() != "users.xml")
-			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
-		else{
+		this.parse("users.xml");
 		for (int index = 0 ; index < nList.getLength();index++){
+			user = new User();
 			node = nList.item(index);
 			element = (Element)node;
 //			System.out.println("user id : " + element.getAttribute("Id") + " Reputation: "+ element.getAttribute("Reputation") + " User Name: " + element.getAttribute("DisplayName"));
@@ -78,15 +74,11 @@ public class DOMParser extends Parser{
 		}
 		System.out.println(userMap.size());
 		}
-	}	
 	
 	@Override
 	public void generatePostsMap(){	
-		if( this.xmlFile.toString() != "posts.xml")
-			throw new IllegalArgumentException("Incorrect Filename passed as parameter");
-		else{
-		System.out.println(nList.getLength());
-		
+		this.parse("posts.xml");
+		System.out.println(nList.getLength());		
 		//push -2 for no questionId type of post
 		questionData.put(-2, 0);
 		answerData.put(-2, 0);
@@ -96,7 +88,6 @@ public class DOMParser extends Parser{
 			postType = Integer.parseInt(element.getAttribute("PostTypeId"));
 			if(element.getAttribute("OwnerUserId")==""){
 				ownerId = -2;
-//				System.out.println(element.getAttribute("Id"));
 			}
 			else 
 				ownerId = Integer.parseInt(element.getAttribute("OwnerUserId"));
@@ -121,54 +112,47 @@ public class DOMParser extends Parser{
 			}//main for loop every row in posts.xml
 		answerData.remove(-2);
 		questionData.remove(-2);
-		}//closing for else error handling
 	}//closing for generate postMap()
-	
-	
+
 	public void sortQuestionsMap(){
-		comparator = new MapValueComparator(questionData);
-		queue = new PriorityQueue<Integer>(27802, comparator);
+		Comparator<Integer> comparator = new MapValueComparator(questionData);
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(questionData.size(), comparator);
 		Integer k;
-		System.out.println("In sort Question");
-		for (Integer key: questionData.keySet()){
+		for (Integer key : questionData.keySet()){
 			queue.add(key);
 		}
-		System.out.println("queuesize = "+ queue.size());
-		while (queue.size() != 0)
-        {
+		while (queue.size() != 0){
 			k=queue.remove();
-            System.out.println(k+"="+questionData.get(k));
-        }
-
-		
+			if(userMap.get(k)!=null){
+				System.out.println(userMap.get(k).getUserName()+"="+questionData.get(k));
+				}			
+        	}		
 		}
-		
-	
-	
-	
-	
-	
-	public Map<Integer, User> getUserMap() {
-		return userMap;
-	}
 
-	public void setUserMap(Map<Integer, User> userMap) {
-		this.userMap = userMap;
+	public void sortAnswersMap(){
+		Comparator<Integer> comparator = new MapValueComparator(answerData);
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(answerData.size(), comparator);
+		Integer k;
+		for (Integer key : answerData.keySet()){
+			queue.add(key);
+		}
+		while (queue.size() != 0){
+			k=queue.remove();
+			if(userMap.get(k)!=null){
+				System.out.println(userMap.get(k).getUserName()+"="+answerData.get(k));
+				}			
+        	}	
 	}
 
 	// Main 
 	public static void main (String args[]){
-		DOMParser obj = new DOMParser("posts.xml");
-		DOMParser obj2 = new DOMParser("users.xml");
-		obj.parse();
+		DOMParser obj = new DOMParser();
 		obj.generatePostsMap();
-		obj.sortQuestionsMap();
-//		obj.generateUserMap();
-		obj2.parse();
-		obj2.generateUserMap();
-//		obj2.generatePostsMap();
+		obj.generateUserMap();
+//		obj.sortQuestionsMap();
+//		obj.sortAnswersMap();
+		
 	}
-
 }	
 
 

@@ -20,11 +20,11 @@ public class MapValueComparator implements Comparator<Integer>{
         // probably be more robust
         if (mapToSort.get(x)< mapToSort.get(y))
         {
-            return 1;
+            return -1;
         }
         if (mapToSort.get(x) > mapToSort.get(y))
         {
-            return -1;
+            return 1;
         }
         return 0;
     }
