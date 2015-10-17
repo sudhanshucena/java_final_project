@@ -9,6 +9,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class SAXHandlerUserXML extends DefaultHandler{
 
+	//local variables for some reason inserting into the map throws NUllPointerException
+	//	so have used two arrays and mapped them using index values
 	List<Integer> idList = new ArrayList<Integer>();
 	List<String> idName = new ArrayList<String>();
 	
@@ -31,20 +33,22 @@ public class SAXHandlerUserXML extends DefaultHandler{
         }
     }
 
+	
+	//Getter for the Lists
 	public List<Integer> getIdList() {
 		return idList;
-	}
-
-	public void display(){
-		for(int i = 0; i < idList.size();i++){
-			System.out.println(idList.get(i)+"="+idName.get(i));
-		}
 	}
 
 	public List<String> getIdName() {
 		return idName;
 	}
-
+	
+	//Explicit function to iterate over the elements  USED FOR MANUAL DEBUGGING
+	public void display(){
+		for(int i = 0; i < idList.size();i++){
+			System.out.println(idList.get(i)+"="+idName.get(i));
+		}
+	}
 }//SAXParser class ends here
 
 

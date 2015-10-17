@@ -12,7 +12,7 @@ public class MapValueComparator implements Comparator<Integer>{
 	}
 
 	
-	// Sort by values
+	// Sort by values in the map against a key
 	@Override
     public int compare(Integer x, Integer y)
     {
@@ -28,21 +28,4 @@ public class MapValueComparator implements Comparator<Integer>{
         }
         return 0;
     }
-	
-//	sort by the keys
-//	@Override
-//    public int compare(Integer x, Integer y)
-//    {
-//        // Assume neither Integer is null. Real code should
-//        // probably be more robust
-//        if (x< y)
-//        {
-//            return -1;
-//        }
-//        if (x > y)
-//        {
-//            return 1;
-//        }
-//        return 0;
-//    }
 }

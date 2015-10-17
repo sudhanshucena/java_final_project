@@ -1,6 +1,5 @@
 package Java_Final_Project;
 
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -12,10 +11,14 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class SAXHandlerPosts extends DefaultHandler{
 
+	//Local Variables
 	int questionType,ownerId;
 	HashMap<Integer,Integer> postsMapQuestions = new HashMap<Integer,Integer>();
 	HashMap<Integer,Integer> postsMapAnswers = new HashMap<Integer,Integer>();
 	
+	/*StartElement is a callback function that is invoked when a new Element/tag is encountered
+	 * elementName -> current element name ; attributes -> used to access the attribute of the tag
+	*/
 	@Override
 	public void startElement(String uri, String localName,
             String elementName, Attributes attributes) throws SAXException {
@@ -49,7 +52,10 @@ public class SAXHandlerPosts extends DefaultHandler{
 		}
 	}
 
-	
+	/* Function to sort and obtain the top 10 users who have asked question or answered , takes the two
+	 * list as arguments along with which map (questions / answer ) to sort uses a comparator to push
+	 * into the priority queue of size 10 based on the value of the map against a key
+	 */
 	public void sortQuestionsAnswers(List<Integer> list,List<String> idName, HashMap<Integer,Integer> mapToSort){
 		Comparator<Integer> comparator = new MapValueComparator(mapToSort);
 		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(10, comparator);
@@ -72,12 +78,10 @@ public class SAXHandlerPosts extends DefaultHandler{
         }
 	}
 
-
+	//getter for the Maps
 	public HashMap<Integer, Integer> getPostsMapQuestions() {
 		return postsMapQuestions;
 	}
-
-
 	public HashMap<Integer, Integer> getPostsMapAnswers() {
 		return postsMapAnswers;
 	}
