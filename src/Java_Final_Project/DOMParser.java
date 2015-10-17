@@ -112,6 +112,8 @@ public class DOMParser extends Parser{
 			}//main for loop every row in posts.xml
 		answerData.remove(-2);
 		questionData.remove(-2);
+//		System.out.println(answerData.size());
+//		System.out.println(questionData.size());
 	}//closing for generate postMap()
 
 	public void sortQuestionsMap(){
@@ -144,15 +146,6 @@ public class DOMParser extends Parser{
         	}	
 	}
 
-	// Main 
-	public static void main (String args[]){
-		DOMParser obj = new DOMParser();
-		obj.generatePostsMap();
-		obj.generateUserMap();
-//		obj.sortQuestionsMap();
-//		obj.sortAnswersMap();
-		
-	}
 }	
 
 
