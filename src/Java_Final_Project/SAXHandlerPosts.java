@@ -1,7 +1,10 @@
 package Java_Final_Project;
 
 
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.PriorityQueue;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -13,13 +16,7 @@ public class SAXHandlerPosts extends DefaultHandler{
 	HashMap<Integer,Integer> postsMapQuestions = new HashMap<Integer,Integer>();
 	HashMap<Integer,Integer> postsMapAnswers = new HashMap<Integer,Integer>();
 	
-	public void endDocument(){
-//		
-//		System.out.println(postsMapQuestions.size());
-//		System.out.println(postsMapAnswers.size());
-	}
-	
-	
+	@Override
 	public void startElement(String uri, String localName,
             String elementName, Attributes attributes) throws SAXException {
 	
@@ -52,4 +49,36 @@ public class SAXHandlerPosts extends DefaultHandler{
 		}
 	}
 
+	
+	public void sortQuestionsAnswers(List<Integer> list,List<String> idName, HashMap<Integer,Integer> mapToSort){
+		Comparator<Integer> comparator = new MapValueComparator(mapToSort);
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(10, comparator);
+		
+		for(Integer key : mapToSort.keySet()){
+			if(queue.size()<10){
+				queue.add(key);
+			}
+			else if(comparator.compare(queue.peek(), key) < 0) {
+				queue.remove();
+				queue.add(key);
+			  }
+		}
+		
+        while (queue.size() != 0)
+        {
+        	Integer val = queue.remove();
+        	if(list.contains(val))
+        		System.out.println(idName.get(list.indexOf(val))+"="+mapToSort.get(val));
+        }
+	}
+
+
+	public HashMap<Integer, Integer> getPostsMapQuestions() {
+		return postsMapQuestions;
+	}
+
+
+	public HashMap<Integer, Integer> getPostsMapAnswers() {
+		return postsMapAnswers;
+	}
 }
