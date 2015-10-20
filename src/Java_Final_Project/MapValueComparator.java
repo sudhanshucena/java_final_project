@@ -6,7 +6,7 @@ import java.util.Map;
 public class MapValueComparator implements Comparator<Integer>{
 	private Map<Integer,Integer> mapToSort;
 	
-	//Parameterized constructor
+	//Parameterised constructor
 	public MapValueComparator(Map<Integer,Integer> mapToSort) {
 		this.mapToSort = mapToSort;
 	}
@@ -28,4 +28,6 @@ public class MapValueComparator implements Comparator<Integer>{
         }
         return 0;
     }
+	
+	
 }

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-public class DOMParser extends Parser{
+public class DOMParser{
 	private File xmlFile;
 	private DocumentBuilderFactory factory;
 	private DocumentBuilder builder;
@@ -29,7 +29,7 @@ public class DOMParser extends Parser{
 	private Map<Integer,Integer> answerData;
 	private int postType,ownerId;
 
-	//Parameterized Constructor
+	//Parameterised Constructor
 	DOMParser(){
 			this.factory = DocumentBuilderFactory.newInstance();
 			userMap = new HashMap<Integer,User>();
@@ -43,7 +43,7 @@ public class DOMParser extends Parser{
 			}
 	}
 	
-	@Override
+	
 	public void parse(String fileName) {
 		this.xmlFile =  new File (fileName);
 		try {
@@ -57,28 +57,23 @@ public class DOMParser extends Parser{
 		}
 		document.getDocumentElement().normalize();
 		nList = document.getElementsByTagName("row");
-		System.out.println(nList.getLength());
 	}
 	
-	@Override
+
 	public void generateUserMap(){
 		this.parse("users.xml");
 		for (int index = 0 ; index < nList.getLength();index++){
 			user = new User();
 			node = nList.item(index);
 			element = (Element)node;
-//			System.out.println("user id : " + element.getAttribute("Id") + " Reputation: "+ element.getAttribute("Reputation") + " User Name: " + element.getAttribute("DisplayName"));
 			user.setReputation(Integer.parseInt(element.getAttribute("Reputation")));
 			user.setUserName(element.getAttribute("DisplayName"));
 			userMap.put(Integer.parseInt(element.getAttribute("Id")),user);
+			}
 		}
-		System.out.println(userMap.size());
-		}
-	
-	@Override
+
 	public void generatePostsMap(){	
 		this.parse("posts.xml");
-		System.out.println(nList.getLength());		
 		//push -2 for no questionId type of post
 		questionData.put(-2, 0);
 		answerData.put(-2, 0);
@@ -112,17 +107,23 @@ public class DOMParser extends Parser{
 			}//main for loop every row in posts.xml
 		answerData.remove(-2);
 		questionData.remove(-2);
-//		System.out.println(answerData.size());
-//		System.out.println(questionData.size());
+
 	}//closing for generate postMap()
 
 	public void sortQuestionsMap(){
 		Comparator<Integer> comparator = new MapValueComparator(questionData);
-		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(questionData.size(), comparator);
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(10, comparator);
 		Integer k;
 		for (Integer key : questionData.keySet()){
-			queue.add(key);
+			if(queue.size()<10){
+				queue.add(key);
+			}
+			else if(comparator.compare(queue.peek(), key) < 0){
+				queue.remove();
+				queue.add(key);
+			}
 		}
+		System.out.println("\n---------Top 10 Users by Questions Posted--------");
 		while (queue.size() != 0){
 			k=queue.remove();
 			if(userMap.get(k)!=null){
@@ -133,11 +134,18 @@ public class DOMParser extends Parser{
 
 	public void sortAnswersMap(){
 		Comparator<Integer> comparator = new MapValueComparator(answerData);
-		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(answerData.size(), comparator);
+		PriorityQueue<Integer> queue = new PriorityQueue<Integer>(10, comparator);
 		Integer k;
 		for (Integer key : answerData.keySet()){
-			queue.add(key);
-		}
+			if(queue.size()<10){
+				queue.add(key);
+			}
+			else if(comparator.compare(queue.peek(), key) < 0){
+				queue.remove();
+				queue.add(key);
+				}		
+			}
+		System.out.println("\n--------Top 10 Users by Answers Posted--------");
 		while (queue.size() != 0){
 			k=queue.remove();
 			if(userMap.get(k)!=null){
